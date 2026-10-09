@@ -1,0 +1,45 @@
+:root{
+	font-size: 16px;
+	/* margins */
+	--margin-xxs: .25rem;
+	--margin-xs: .5rem;
+	--margin-s: .75rem;
+	--margin-m: 1rem;
+	--margin-l: 1.25rem;
+	--margin-xl: 1.75rem;
+	--margin-xxl: 2.5rem;
+
+	/* colors */
+	--gray10: hsl(0, 0%, 10%);
+	--gray90: hsl(0, 0%, 90%);
+
+	/* landing page */
+	--ff: "Inter", sans-serif;
+	--h1: bold 4rem/1em var(--ff);
+	--h2: bold 3rem/1.2em var(--ff);
+	--h3: bold 2.25rem/1.2em var(--ff);
+	--h4: bold 1.5rem/1.6em var(--ff);
+	--big: 1.25rem/1.6em var(--ff);
+	--p: 1rem/1.6em var(--ff);
+	--small: .75rem/2em var(--ff);
+
+	/* UIs */
+	--h1ui: bold 3rem/1.2em var(--ff);
+	--h2ui: bold 2.25rem/1.2em var(--ff);
+	--h3ui: bold 1.5rem/1.2em var(--ff);
+	--h4ui: bold 1.12rem/1.6em var(--ff);
+	--bigui: 1rem/1.6em var(--ff);
+	--pui: .8rem/1.6em var(--ff);
+	--smallui: .75rem/1.8em var(--ff);
+}
+
+/* Spacers to use in Markdown, for example:
+
+<div class="spacer-s"></div>
+
+*/
+.spacer-s { height: var(--margin-s); }
+.spacer-m { height: var(--margin-m); }
+.spacer-l { height: var(--margin-l); }
+.spacer-xl { height: var(--margin-xl); }
+.spacer-xxl { height: var(--margin-xxl); }
