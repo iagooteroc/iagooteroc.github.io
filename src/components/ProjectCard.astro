@@ -1,0 +1,96 @@
+
+---
+interface Props {
+    title: string;
+    description: string;
+    href: string;
+    technologies: string[];
+}
+
+const { title, description, href, technologies } = Astro.props;
+---
+
+<a class="project-card" href={href}>
+    <h3>{title}</h3>
+
+    <p>{description}</p>
+
+    <ul class="tags" aria-label="Technologies used">
+        {technologies.map((technology) => (
+            <li class="tag">{technology}</li>
+        ))}
+    </ul>
+
+<!--     <a class="project-link" href={href}>
+        View project <span aria-hidden="true">→</span>
+    </a> -->
+</a>
+
+<style>
+    .project-card {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--margin-m);
+        padding: var(--margin-l);
+        border: 1px solid var(--bg-light);
+        border-radius: 8px;
+        background: var(--bg);
+
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .project-card:hover{
+        border-color: var(--bg-dark);
+    }
+
+    .project-card:focus-visible {
+        outline: 2px solid var(--bg-dark);
+        outline-offset: 4px;
+    }
+
+    .project-card h3 {
+        margin: 0;
+        font: var(--h3ui);
+    }
+
+    .project-card p {
+        margin: 0;
+        font: var(--pui);
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--margin-xs);
+        list-style: none;
+        padding: 0;
+        margin: auto 0 0;
+    }
+
+    .tag {
+        font: var(--smallui);
+        padding: 0.2rem 0.6rem;
+        border: 1px solid var(--bg-light);
+        border-radius: 999px;
+        background: var(--bg-dark);
+    }
+
+/*     .project-link {
+        margin-top: auto;
+        font: var(--pui);
+        color: inherit;
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+    }
+
+    .project-link:hover {
+        opacity: 0.75;
+    }
+
+    .project-link:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 4px;
+    } */
+</style>

@@ -1,8 +1,39 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Content as Greeting } from "../content/greeting.md"
+import ProjectCard from "../components/ProjectCard.astro"
+---
 
-	<h2>Hello there, I'm Iago</h2>
+<Layout>
+	<section class="greeting">
+		<Greeting />
+	</section>
+	
+	<section class="projects">
+		<h2>Projects</h2>
 
-    <p class="big">I'm a DevOps enthusiast</p>
-
+		<div class="project-grid">
+			<ProjectCard
+				title="Self-hosting"
+				description="Services running as Docker containers in my NAS Services running as Docker containers in my NAS Services running as Docker containers in my NAS Services running as Docker containers in my NAS"
+				href="/projects/self-hosting/"
+				technologies={["Docker", "DNS"]}
+			/>
+			<ProjectCard
+				title="GitHub Pages Deployment"
+				description="This website is hosted on GitHub Pages and is built on GitHub Actions"
+				href="/projects/github-pages/"
+				technologies={["Git", "CI/CD"]}
+			/>
+			<ProjectCard
+				title="DevOps Project"
+				description="Practise project with everything needed from CI/CD to monitoring"
+				href="/projects/github-pages/"
+				technologies={["Kubernetes", "Prometheus", "Graphana", "Docker", "Azure", "Cloud", "Bash", "Linux", "Terraform", "Ansible"]}
+			/>
+		</div>
+	</section>
+</Layout>
 <!-- 	<h4 class="ts">Type scale - Landing pages</h4>
 	<h1>The quick white cat jumps over the lazy dog</h1>
 	<h2>The quick white cat jumps over the lazy dog</h2>
@@ -23,3 +54,15 @@
 	<p class="small">The quick white cat jumps over the lazy dog</p>
 	
 	</div> -->
+
+<style>
+	.project-grid {
+		display: grid;
+		grid-template-columns: repeat(
+			auto-fit,
+			minmax(min(100%, 280px), 1fr)
+		);
+		gap: var(--margin-l);
+		margin-top: var(--margin-l);
+	}
+</style>

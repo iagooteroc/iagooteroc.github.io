@@ -10,8 +10,13 @@
 	--margin-xxl: 2.5rem;
 
 	/* colors */
-	--gray10: hsl(0, 0%, 10%);
-	--gray90: hsl(0, 0%, 90%);
+	--bg-dark: hsl(0, 0%, 5%);
+	--bg: hsl(0, 0%, 10%);
+	--bg-light: hsl(0, 0%, 15%);
+	--text: hsl(0, 0%, 90%);
+	--text-muted: hsl(0, 0%, 70%);
+/* 	--gray10: hsl(0, 0%, 10%);
+	--gray90: hsl(0, 0%, 90%); */
 
 	/* landing page */
 	--ff: "Inter", sans-serif;
@@ -31,6 +36,26 @@
 	--bigui: 1rem/1.6em var(--ff);
 	--pui: .8rem/1.6em var(--ff);
 	--smallui: .75rem/1.8em var(--ff);
+
+	/* Layout */
+	--content-max: 1150px;
+	--content-gutter: var(--margin-m);
+}
+
+body.light {
+	--bg-dark: hsl(0, 0%, 90%);
+	--bg: hsl(0, 0%, 95%);
+	--bg-light: hsl(0, 0%, 100%);
+	--text: hsl(0, 0%, 5%);
+	--text-muted: hsl(0, 0%, 30%);
+}
+
+.content {
+	width: min(
+		var(--content-max),
+		calc(100% - 2 * var(--content-gutter))
+	);
+	margin-inline: auto;
 }
 
 /* Spacers to use in Markdown, for example:

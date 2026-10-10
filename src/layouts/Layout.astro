@@ -10,21 +10,33 @@ import "../styles/global.css"
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>Iago's Website</title>
 	</head>
 	<body>
-		<slot />
+		<main class="content">
+			<slot />
+		</main>
 	</body>
 </html>
 
 <style>
 	html,
 	body {
-		margin: 2rem;
+		margin: 0;
 		font-family: var(--ff);
 		text-wrap: balance;
-		background: var(--gray10);
-		color: var(--gray90);
+		background: var(--bg-dark);
+		color: var(--text);
+	}
+
+	button {
+		background: var(--bg-light);
+		padding: 0.5rem 1rem 0.7rem 1rem;
+		color: var(--text)
+		font-weight: 700;
+		border-radius: 0.5rem;
+		margin-top: 1.5rem;
+		border: none;
 	}
 
 	/* Landing page */
@@ -46,7 +58,7 @@ import "../styles/global.css"
 	:global(.ui .small) { font: var(--smallui); }
 
 	/* Shared styles */
-	:global(.ts) { color: var(--gray70); }
+	/* :global(.ts) { color: var(--gray70); } */
 
 	:global(h1, h2, h3, h4, .big, p, .small) {
 		margin: 0;
