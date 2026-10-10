@@ -10,13 +10,18 @@
 	--margin-xxl: 2.5rem;
 
 	/* colors */
-	--bg-dark: hsl(0, 0%, 5%);
+/* 	--bg-dark: hsl(0, 0%, 5%);
 	--bg: hsl(0, 0%, 10%);
 	--bg-light: hsl(0, 0%, 15%);
 	--text: hsl(0, 0%, 90%);
-	--text-muted: hsl(0, 0%, 70%);
-/* 	--gray10: hsl(0, 0%, 10%);
-	--gray90: hsl(0, 0%, 90%); */
+	--text-muted: hsl(0, 0%, 70%); */
+	
+	--bg: hsl(218, 33%, 16%);
+	--bg-dark: hsl(218, 33%, 12%);
+	--bg-light: hsl(217, 27%, 31%);
+	--text: hsl(157, 48%, 90%);
+	--text-muted: hsl(174, 11%, 80%);
+	--accent: hsl(358, 85%, 62%);
 
 	/* landing page */
 	--ff: "Inter", sans-serif;
@@ -48,6 +53,34 @@ body.light {
 	--bg-light: hsl(0, 0%, 100%);
 	--text: hsl(0, 0%, 5%);
 	--text-muted: hsl(0, 0%, 30%);
+}
+
+/* unvisited link */
+a:link {
+  color: hsl(358, 85%, 62%);
+  text-decoration: none;
+}
+
+/* visited link */
+a:visited {
+  color: hsl(358, 85%, 62%);
+  text-decoration: none;
+}
+
+/* mouse over link */
+a:hover {
+  color: hsl(358, 85%, 62%);
+  text-decoration: underline;
+}
+
+/* selected link */
+a:active {
+  color: hsl(358, 85%, 62%);
+  text-decoration: none;
+}
+
+.accented-word {
+	color: var(--accent);
 }
 
 .content {

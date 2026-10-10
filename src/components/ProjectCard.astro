@@ -42,7 +42,7 @@ const { title, description, href, technologies } = Astro.props;
     }
 
     .project-card:hover{
-        border-color: var(--bg-dark);
+        border-color: var(--accent);
     }
 
     .project-card:focus-visible {
@@ -58,6 +58,7 @@ const { title, description, href, technologies } = Astro.props;
     .project-card p {
         margin: 0;
         font: var(--pui);
+        color: var(--text-muted);
     }
 
     .tags {
@@ -71,26 +72,11 @@ const { title, description, href, technologies } = Astro.props;
 
     .tag {
         font: var(--smallui);
+/*         padding: var(--margin-xxs) var(--margin-xs); */
         padding: 0.2rem 0.6rem;
         border: 1px solid var(--bg-light);
         border-radius: 999px;
-        background: var(--bg-dark);
+        background: var(--bg-light);
     }
 
-/*     .project-link {
-        margin-top: auto;
-        font: var(--pui);
-        color: inherit;
-        text-decoration: underline;
-        text-underline-offset: 0.2em;
-    }
-
-    .project-link:hover {
-        opacity: 0.75;
-    }
-
-    .project-link:focus-visible {
-        outline: 2px solid currentColor;
-        outline-offset: 4px;
-    } */
 </style>
