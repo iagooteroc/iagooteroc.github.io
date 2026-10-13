@@ -6,7 +6,7 @@ import ProjectCard from "../components/ProjectCard.astro"
 <Layout>
 	<section class="greeting">
 		<h1>Hello there, I'm <span class="accented-word">Iago</span></h1>
-		<p>I'm a DevOps enthusiast.</p>
+		<p>I'm a DevOps enthusiast</p>
 	</section>
 	
 	<section class="projects">
@@ -15,13 +15,13 @@ import ProjectCard from "../components/ProjectCard.astro"
 		<div class="project-grid">
 			<ProjectCard
 				title="Self-hosting"
-				description="Services running as Docker containers in my NAS Services running as Docker containers in my NAS Services running as Docker containers in my NAS Services running as Docker containers in my NAS"
+				description="Applications running as Docker containers in my NAS"
 				href="/projects/self-hosting/"
 				technologies={["Docker", "DNS"]}
 			/>
 			<ProjectCard
 				title="GitHub Pages Deployment"
-				description="This website is hosted on GitHub Pages and is built on GitHub Actions"
+				description="This website is hosted on GitHub Pages and is build on GitHub Actions"
 				href="/projects/github-pages/"
 				technologies={["Git", "CI/CD"]}
 			/>
@@ -29,31 +29,11 @@ import ProjectCard from "../components/ProjectCard.astro"
 				title="DevOps Project"
 				description="Practise project with everything needed from CI/CD to monitoring"
 				href="/projects/devops-project/"
-				technologies={["Kubernetes", "Prometheus", "Graphana", "Docker", "Azure", "Cloud", "Bash", "Linux", "Terraform", "Ansible"]}
+				technologies={["Kubernetes", "Terraform", "Ansible", "Prometheus", "Graphana",]}
 			/>
 		</div>
 	</section>
 </Layout>
-<!-- 	<h4 class="ts">Type scale - Landing pages</h4>
-	<h1>The quick white cat jumps over the lazy dog</h1>
-	<h2>The quick white cat jumps over the lazy dog</h2>
-	<h3>The quick white cat jumps over the lazy dog</h3>
-	<h4>The quick white cat jumps over the lazy dog</h4>
-	<p class="big">The quick white cat jumps over the lazy dog</p>
-	<p>The quick white cat jumps over the lazy dog</p>
-	<p class="small">The quick white cat jumps over the lazy dog</p>
-
-	<div class="ui">
-	<h4 class="ts">Type scale - UIs</h4>
-	<h1>The quick white cat jumps over the lazy dog</h1>
-	<h2>The quick white cat jumps over the lazy dog</h2>
-	<h3>The quick white cat jumps over the lazy dog</h3>
-	<h4>The quick white cat jumps over the lazy dog</h4>
-	<p class="big">The quick white cat jumps over the lazy dog</p>
-	<p>The quick white cat jumps over the lazy dog</p>
-	<p class="small">The quick white cat jumps over the lazy dog</p>
-	
-	</div> -->
 
 <style>
 	.project-grid {
@@ -63,6 +43,13 @@ import ProjectCard from "../components/ProjectCard.astro"
 			minmax(min(100%, 280px), 1fr)
 		);
 		gap: var(--margin-l);
+		margin-top: var(--margin-l);
+	}
+	.greeting h1 {
+		font-size: 3rem;
+	}
+	.greeting p {
+		font: var(--big);
 		margin-top: var(--margin-l);
 	}
 </style>

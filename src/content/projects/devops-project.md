@@ -4,9 +4,6 @@ https://docs.docker.com/reference/dockerfile/
 https://learn.microsoft.com/en-us/azure/virtual-machines/windows/quick-create-terraform  
 https://learn.microsoft.com/en-us/azure/developer/terraform/
 
-
-<div class="spacer-m"></div>
-
 -----
 
 ## Overview
@@ -21,6 +18,10 @@ In this project, I have documented all the necessary steps to build a basic DevO
 ## 1. Git repository
 
 We will be using **Git** as the source of truth, so start by creating a repository in the platform of your choice (GitHub, GitLab, Codeberg...).
+
+### 1. 1. Requirements
+
+We need to install the following requirements:
 
 **Requirements:**
 - `git`
@@ -124,9 +125,6 @@ sudo kubectl cluster-info
 sudo kubectl get nodes
 ```
 
-
-
-<div class="spacer-xxl"></div>
 
 -----
 
