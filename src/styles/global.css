@@ -10,12 +10,6 @@
 	--margin-xxl: 2.5rem;
 
 	/* colors */
-/* 	--bg-dark: hsl(0, 0%, 5%);
-	--bg: hsl(0, 0%, 10%);
-	--bg-light: hsl(0, 0%, 15%);
-	--text: hsl(0, 0%, 90%);
-	--text-muted: hsl(0, 0%, 70%); */
-	
 	--bg: hsl(218, 33%, 16%);
 	--bg-dark: hsl(218, 33%, 12%);
 	--bg-light: hsl(217, 27%, 31%);
@@ -44,7 +38,7 @@
 
 	/* Layout */
 	--content-max: 1150px;
-	--content-gutter: var(--margin-m);
+	--content-gutter: var(--margin-l);
 }
 
 body.light {
@@ -57,25 +51,25 @@ body.light {
 
 /* unvisited link */
 a:link {
-  color: hsl(358, 85%, 62%);
+  color: var(--accent);
   text-decoration: none;
 }
 
 /* visited link */
 a:visited {
-  color: hsl(358, 85%, 62%);
+  color: var(--accent);
   text-decoration: none;
 }
 
 /* mouse over link */
 a:hover {
-  color: hsl(358, 85%, 62%);
+  color: var(--accent);
   text-decoration: underline;
 }
 
 /* selected link */
 a:active {
-  color: hsl(358, 85%, 62%);
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -101,3 +95,93 @@ a:active {
 .spacer-l { height: var(--margin-l); }
 .spacer-xl { height: var(--margin-xl); }
 .spacer-xxl { height: var(--margin-xxl); }
+
+/* table of contents */
+.toc {
+  padding: var(--margin-m);
+  margin-block: var(--margin-l);
+  border: 1px solid var(--bg-light);
+  border-radius: 8px;
+}
+
+.toc summary {
+  font: var(--bigui);
+  cursor: pointer;
+}
+
+.toc ul {
+  margin-bottom: 0;
+  padding-left: var(--margin-l);
+}
+
+.toc li {
+  font: var(--pui);
+}
+
+.toc .depth-3 {
+  margin-left: var(--margin-m);
+}
+
+.toc a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.toc a:hover {
+  text-decoration: underline;
+}
+
+/* .toc:hover {
+	border-color: var(--accent);
+} */
+
+/* horizontal rule */
+hr {
+	border-width: 0px 0px 1px 0px;
+	color: var(--bg-light)
+}
+
+/* block code: ```bash ... ``` */
+pre.astro-code {
+  background-color: var(--bg-dark) !important;
+  padding: var(--margin-m);
+  border-radius: 8px;
+  overflow-x: auto;
+  border: 1px solid var(--bg-light);
+  border-radius: 8px;
+}
+
+.astro-code span {
+	font-family: 'Courier New', Courier, monospace !important;
+	font-size: 0.88rem !important;
+}
+/* https://docs.astro.build/en/guides/syntax-highlighting/ */
+
+/* inline code */
+:not(pre) > code {
+	background-color: var(--bg-dark);
+	padding: 0.1em 0.4em;
+	border-radius: 4px;
+	color: var(--text-muted);
+	font-size: 0.88rem;
+	/* border: 1px solid var(--bg-light); */
+}
+
+/* block quote */
+
+blockquote {
+  margin-block: var(--margin-l);
+  margin-inline: 0;
+  padding: var(--margin-xs) var(--margin-m);
+  border-left: 3px solid var(--accent);
+  color: var(--text-muted);
+}
+
+blockquote p {
+  margin: 0;
+  font-style: italic;
+}
+
+blockquote p + p {
+  margin-top: var(--margin-s);
+}
