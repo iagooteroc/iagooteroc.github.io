@@ -256,6 +256,24 @@ resources: # Higher resource limit
     memory: 128Mi
 ```
 
+\# TODO: `Chart.yaml`, `_helpers.tpl`, `deployment.yaml`, `service.yaml`, `ingress.yaml`
+\# TODO: `helm lint`, `helm template`
+
+```bash
+helm install ...
+```
+
+\# TODO: temporarely port forward:
+```bash
+kubectl port-forward \
+  -n taskflow \
+  service/taskflow-kanban \
+  8080:80
+```
+
+And test http://localhost:8080
+
+\# TODO: helm commands (status, get, upgrade, history, rollback...)
 
 
 ### 2.3. Prometheus and Grafana
