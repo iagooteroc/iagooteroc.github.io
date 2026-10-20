@@ -174,7 +174,7 @@ We'll start by creating a cluster using `kind`:
 sudo kind create cluster --name taskflow
 ```
 
-\# TODO: finish this with the minimum requirements for Helm to work
+Now, instead of writing multiple Kubernetes resources by hand, we will be using **Helm** charts.
 
 ### 2.2. Helm
 
@@ -219,7 +219,7 @@ kanban/
 
 For simplification you can remove `hpa.yaml`, `httproute.yaml`, `serviceaccount.yaml`, and `tests`.  
 
-Replace the default values in `values.yaml` using your image repository:
+Replace the default values in `values.yaml` with your image repository:
 ```yaml
 replicaCount: 2
 
@@ -235,6 +235,10 @@ resources:
   limits:
     cpu: 100m
     memory: 64Mi
+
+serviceAccount:
+  create: false
+  automount: false
 ```
 
 Then create `dev.yaml` and `prod.yaml` inside a new folder `helm/kanban/values/`. These will be used to overwrite the default values in `values.yaml`. For example, define more replicas and a higher resource limit for production (`prod.yaml`):
@@ -256,22 +260,41 @@ resources: # Higher resource limit
     memory: 128Mi
 ```
 
-\# TODO: `Chart.yaml`, `_helpers.tpl`, `deployment.yaml`, `service.yaml`, `ingress.yaml`
-\# TODO: `helm lint`, `helm template`
-
+You can check how the final chart will look like with the `helm template <release-name> <chart-name>` command, but first validate it:
 ```bash
-helm install ...
+helm lint helm/kanban
+```
+It should say `1 chart(s) linted, 0 chart(s) failed`. Now you can render the templates with the default values:
+```bash
+helm template default-release helm/kanban
+```
+And compare it with the production release:
+```bash
+helm template prod-release helm/kanban \
+  -f helm/kanban/values/prod.yaml
+```
+You should see the number of replicas has been replaced with the value from `prod.yaml`. This would be the Kubernetes YAML to be installed in production.
+
+Let's install the chart :
+```bash
+sudo helm install taskflow helm/kanban \
+  -f helm/kanban/values/prod.yaml
+
+#  --namespace taskflow \
+#  --create-namespace
 ```
 
-\# TODO: temporarely port forward:
+You can check when the pods are ready with `sudo kubectl get all`. If any get stuck on `ImagePullBackOff` status, you can get more information with `sudo kubectl describe <pod-name>`.
+
+To access the app for now we need to use port forwarding since the Service is running in ClusterIP mode (cluster-scoped virtual IP address) on port 80:
 ```bash
-kubectl port-forward \
-  -n taskflow \
+sudo kubectl port-forward \
   service/taskflow-kanban \
   8080:80
+  #-n taskflow \
 ```
 
-And test http://localhost:8080
+Keep that running and go to http://127.0.0.1:8080. You should see the kanban app.
 
 \# TODO: helm commands (status, get, upgrade, history, rollback...)
 
