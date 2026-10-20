@@ -275,16 +275,22 @@ helm template prod-release helm/kanban \
 ```
 You should see the number of replicas has been replaced with the value from `prod.yaml`. This would be the Kubernetes YAML to be installed in production.
 
-Let's install the chart :
+Let's install the chart and create a namespace for it:
 ```bash
 sudo helm install taskflow helm/kanban \
+  --namespace taskflow \
+  --create-namespace \
   -f helm/kanban/values/prod.yaml
-
-#  --namespace taskflow \
-#  --create-namespace
 ```
 
-You can check when the pods are ready with `sudo kubectl get all`. If any get stuck on `ImagePullBackOff` status, you can get more information with `sudo kubectl describe <pod-name>`.
+You can check when the pods are ready with:
+```bash
+sudo kubectl get all -n taskflow
+```
+If any get stuck on `ImagePullBackOff` status, you can get more information with:
+```bash
+sudo kubectl describe <pod-name> -n taskflow
+```
 
 To access the app for now we need to use port forwarding since the Service is running in ClusterIP mode (cluster-scoped virtual IP address) on port 80:
 ```bash
@@ -296,8 +302,18 @@ sudo kubectl port-forward \
 
 Keep that running and go to http://127.0.0.1:8080. You should see the kanban app.
 
-\# TODO: helm commands (status, get, upgrade, history, rollback...)
+\# TODO: helm commands (status, get, upgrade, history, rollback...)  
+You can view the values used by the release with:
+```bash
+# Get values
+sudo helm get values taskflow \
+  --namespace taskflow
+# Get all values, including defaults
+sudo helm get values taskflow --all \
+  --namespace taskflow
+```
 
+If you want to change a value, you would have to edit the chart and re-install it. Instead of doing that manually, we will use **Argo CD**.
 
 ### 2.3. Prometheus and Grafana
 
@@ -308,11 +324,115 @@ Keep that running and go to http://127.0.0.1:8080. You should see the kanban app
 ### 3.1. CI with GitHub Actions
 
 
-
 ### 3.2. Argo CD
 
 **Argo CD** is a declarative, GitOps continuous delivery tool for Kubernetes. It considers the state declared in Git to be the desired state of the application and will sync the Kubernetes cluster to match it.  
 
+**Requirements:**
+- `docker` installed and running
+- `kind` cluster created and running
+- `kubectl`
+- `helm`
+- `argocd`
+
+**Installation on Arch Linux:**
+```bash
+# Install the package
+sudo pacman -S argocd
+```
+
+Install Argo CD using its official manifest:
+```bash
+sudo kubectl create namespace argocd
+
+sudo kubectl apply \
+  -n argocd \
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+
+Check the status of the pods until they are `Running`:
+```bash
+sudo kubectl get pods -n argocd
+# wait until the main components are running
+sudo kubectl get pods -n argocd -w
+```
+
+You should now be able to access Argo CD web interface with port forwarding:
+```bash
+sudo kubectl port-forward \
+  -n argocd \
+  svc/argocd-server \
+  8081:443
+```
+
+Open https://localhost:8081. Your browser will probably show a warning due to the self-signed certificate. Proceed anyway.
+
+To retrieve the initial admin password:
+```bash
+sudo argocd admin initial-password -n argocd
+```
+Use it to login and change the password through the UI or CLI:
+```bash
+sudo argocd login localhost:8081
+sudo argocd account update-password
+```
+
+Now you need to have your **Helm** charts accesible in your repository, so commit them if you haven't already:
+```bash
+git add .
+git commit -m "feat: helm chart for kanban app"
+git push
+```
+
+Let's create the Argo CD Application
+```bash
+mkdir -p argocd
+touch argocd/taskflow-application.yaml
+```
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: taskflow
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/<username>/<repo>.git
+    targetRevision: main
+    path: helm/kanban
+    helm:
+      valueFiles:
+        - values/prod.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: taskflow
+
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+    - CreateNamespace=true
+```
+Replace with your repository URL and application name.
+
+Apply it:
+```bash
+sudo kubectl apply -f argocd/taskflow-application.yaml
+```
+
+I got
+```
+argocd-applicationset-controller-66d7f7865d-5fjrr   0/1     CrashLoopBackOff
+```
+and in the UI:
+>Unable to load data: revision main must be resolved
+
+---
 
 
 >Each container acts as a Kubernetes node running kubelet, containerd, and the necessary control plane or worker components.
