@@ -2,6 +2,7 @@ Sources:
 https://docs.docker.com/reference/dockerfile/  
 https://helm.sh/docs  
 https://argo-cd.readthedocs.io/  
+https://github.com/argoproj/argo-cd/issues/26265#issuecomment-3850682322  
 ...  
 https://learn.microsoft.com/en-us/azure/virtual-machines/windows/quick-create-terraform  
 https://learn.microsoft.com/en-us/azure/developer/terraform/
@@ -77,7 +78,7 @@ sudo docker run -d --name kanban -p 8080:80 kanban:1.0
 # You should be able to see the new container running with
 sudo docker ps
 ```
-Now go to http://127.0.0.1:8080 and check that you can see the kanban app.  
+Now go to http://localhost:8080 and check that you can see the kanban app.  
 
 Here are some other useful commands:
 ```bash
@@ -111,10 +112,14 @@ on:
     branches:
     - "main"
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+  IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   build-and-publish-head:
@@ -224,7 +229,7 @@ Replace the default values in `values.yaml` with your image repository:
 replicaCount: 2
 
 image:
-  repository: ghcr.io/iagooteroc/kanban-platform
+  repository: ghcr.io/iagooteroc/devops-project
   tag: latest
   pullPolicy: IfNotPresent
 
@@ -247,7 +252,7 @@ Then create `dev.yaml` and `prod.yaml` inside a new folder `helm/kanban/values/`
 replicaCount: 3 # Increased number of replicas
 
 image:
-  repository: ghcr.io/iagooteroc/kanban-platform
+  repository: ghcr.io/iagooteroc/devops-project
   tag: latest # This should be a fixed version in prod
   pullPolicy: IfNotPresent
 
@@ -296,11 +301,11 @@ To access the app for now we need to use port forwarding since the Service is ru
 ```bash
 sudo kubectl port-forward \
   service/taskflow-kanban \
+  -n taskflow \
   8080:80
-  #-n taskflow \
 ```
 
-Keep that running and go to http://127.0.0.1:8080. You should see the kanban app.
+Keep that running and go to http://localhost:8080. You should see the kanban app.
 
 \# TODO: helm commands (status, get, upgrade, history, rollback...)  
 You can view the values used by the release with:
@@ -323,6 +328,12 @@ If you want to change a value, you would have to edit the chart and re-install i
 ---
 ### 3.1. CI with GitHub Actions
 
+>TODO:  
+>Every push validates:  
+>    yamllint - YAML syntax.  
+>    manifest-validate - kubeconform against the target Kubernetes schema.  
+>    helm-validate - helm template on every umbrella chart.  
+>    argocd-validate - ArgoCD Application YAML structure.
 
 ### 3.2. Argo CD
 
@@ -343,12 +354,21 @@ sudo pacman -S argocd
 
 Install Argo CD using its official manifest:
 ```bash
+# Recreate the cluster if you have anything running
+sudo kind delete cluster --name taskflow
+sudo kind create cluster --name taskflow
+
+# Create a namespace for Argo CD
 sudo kubectl create namespace argocd
 
+# Install
 sudo kubectl apply \
   -n argocd \
+  --server-side --force-conflicts \
   -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
+
+The `--server-side --force-conflicts` parameters are now part of the official installation command due to CRD size limitations.
 
 Check the status of the pods until they are `Running`:
 ```bash
@@ -365,7 +385,7 @@ sudo kubectl port-forward \
   8081:443
 ```
 
-Open https://localhost:8081. Your browser will probably show a warning due to the self-signed certificate. Proceed anyway.
+Open https://localhost:8081. Your browser should show a warning due to the self-signed certificate. Proceed anyway.
 
 To retrieve the initial admin password:
 ```bash
@@ -425,12 +445,84 @@ Apply it:
 sudo kubectl apply -f argocd/taskflow-application.yaml
 ```
 
-I got
+Now you should see the app in the UI and via the CLI:
+```bash
+sudo argocd app list
+sudo argocd app get taskflow
 ```
-argocd-applicationset-controller-66d7f7865d-5fjrr   0/1     CrashLoopBackOff
+
+
+```bash
+sudo kubectl logs -n argocd \
+  argocd-applicationset-controller-86bcdc46cf-vwmn7 \
+  -c argocd-applicationset-controller \
+  --previous
 ```
-and in the UI:
->Unable to load data: revision main must be resolved
+
+app-of-apps pattern:
+https://www.arthurkoziel.com/setting-up-argocd-with-helm/
+
+
+### 3.3 Prometheus and Grafana
+
+```bash
+touch argocd/prometheus-stack-application.yaml
+```
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 92.11.0
+    helm:
+      values: |
+        pushgateway:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+```bash
+sudo kubectl apply -f argocd/prometheus-stack-application.yaml
+```
+
+Find the Grafana Service: (replace monitoring with taskflow)
+```bash
+sudo kubectl get services -n monitoring
+```
+
+Port forward it:
+```bash
+sudo kubectl port-forward \
+  -n monitoring \
+  service/monitoring-grafana \
+  3000:80
+```
+
+To reach this point:
+```bash
+sudo kind delete cluster --name taskflow
+sudo kind create cluster --name taskflow
+sudo kubectl create namespace argocd
+sudo kubectl apply \
+  -n argocd \
+  --server-side --force-conflicts \
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+sudo kubectl apply -f argocd/prometheus-stack-application.yaml
+
+```
 
 ---
 
