@@ -68,9 +68,11 @@ EXPOSE 80
 ```
 We'll use the lightweight Linux distribution (Alpine) version of the nginx image as a base to build our own. Then, we copy the website files into the image's filesystem and inform Docker that the container will listen to port 80.  
 
-Now we can build the image and try it:
+Create a folder named `app` and move the files there. Now we can build the image and try it:
 ```bash
-sudo docker build -t kanban:1.0 .
+mkdir app
+mv index.html styles.css app.js Dockerfile ./app/
+sudo docker build -t kanban:1.0 ./app
 # This should show the nginx:alpine image and our kanban:1.0
 sudo docker images
 # Start a container binding the 8080 port on your machine to the containers 80 port
@@ -107,10 +109,17 @@ To make the image accessible we will publish it to Github Container Registry. To
 ```yaml
 name: Build and publish on main branch
 
-on: 
+on:
   push:
     branches:
     - "main"
+    paths:
+    - "app/**"
+  pull_request:
+    branches:
+    - "main"
+    paths:
+    - "app/**"
 
 permissions:
   contents: read
@@ -127,7 +136,7 @@ jobs:
 
     steps:
     - name: Check out repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Log in to GHCR
       uses: docker/login-action@v4
@@ -148,15 +157,15 @@ jobs:
     - name: Build and push image
       uses: docker/build-push-action@v7
       with:
-        context: .
+        context: ./app
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 ```
 
-This will build and publish our image whenever a push is made to the main branch. The image will be available at `ghcr.io/<user>/<repo>:<tag>`. It tags the image by SHA and also adds the `latest` tag.
+This will build and publish our image whenever a push is made to the main branch affecting the `app/` folder. The image will be available at `ghcr.io/<user>/<repo>:<tag>`. It tags the image by SHA and also adds the `latest` tag.
 
-## **Part 2** -- Container orchestration and monitoring
+## **Part 2** -- Container orchestration
 ---
 ### 2.1. Kubernetes
 
@@ -320,22 +329,9 @@ sudo helm get values taskflow --all \
 
 If you want to change a value, you would have to edit the chart and re-install it. Instead of doing that manually, we will use **Argo CD**.
 
-### 2.3. Prometheus and Grafana
-
-\# TODO: Maybe move this to after CI/CD?
-
-## **Part 3** -- CI/CD
+## **Part 3** -- CI/CD, monitoring and observability
 ---
-### 3.1. CI with GitHub Actions
-
->TODO:  
->Every push validates:  
->    yamllint - YAML syntax.  
->    manifest-validate - kubeconform against the target Kubernetes schema.  
->    helm-validate - helm template on every umbrella chart.  
->    argocd-validate - ArgoCD Application YAML structure.
-
-### 3.2. Argo CD
+### 3.1. Argo CD
 
 **Argo CD** is a declarative, GitOps continuous delivery tool for Kubernetes. It considers the state declared in Git to be the desired state of the application and will sync the Kubernetes cluster to match it.  
 
@@ -373,7 +369,7 @@ The `--server-side --force-conflicts` parameters are now part of the official in
 Check the status of the pods until they are `Running`:
 ```bash
 sudo kubectl get pods -n argocd
-# wait until the main components are running
+# or watch until the main components are running
 sudo kubectl get pods -n argocd -w
 ```
 
@@ -390,6 +386,9 @@ Open https://localhost:8081. Your browser should show a warning due to the self-
 To retrieve the initial admin password:
 ```bash
 sudo argocd admin initial-password -n argocd
+# or without argocd cli installed
+sudo kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d
 ```
 Use it to login and change the password through the UI or CLI:
 ```bash
@@ -459,16 +458,15 @@ sudo kubectl logs -n argocd \
   --previous
 ```
 
-app-of-apps pattern:
+\# TODO: app-of-apps pattern:
 https://www.arthurkoziel.com/setting-up-argocd-with-helm/
 
 
-### 3.3 Prometheus and Grafana
+### 3.2. Prometheus and Grafana
 
-```bash
-touch argocd/prometheus-stack-application.yaml
-```
+**Prometheus** is an open source application for monitoring, obtaining metrics and alerts that integrates with Kubernetes. It is often paired with **Grafana** for observability.
 
+I used Argo CD to install the `kube-prometheus-stack` Helm chart with this `argocd/prometheus-stack-application.yaml`:
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -492,47 +490,158 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - ServerSideApply=true
 ```
 
+Apply it:
 ```bash
-sudo kubectl apply -f argocd/prometheus-stack-application.yaml
+sudo kubectl apply \
+  -f argocd/prometheus-stack-application.yaml
 ```
 
-Find the Grafana Service: (replace monitoring with taskflow)
+When its ready, find the Grafana Service and port forward it:
 ```bash
 sudo kubectl get services -n monitoring
-```
-
-Port forward it:
-```bash
 sudo kubectl port-forward \
   -n monitoring \
-  service/monitoring-grafana \
+  service/prometheus-stack-grafana \
   3000:80
 ```
 
+Get the initial Grafana password and use it to log in the web UI at http://localhost:3000
+```bash
+sudo kubectl get secret prometheus-stack-grafana \
+  -n monitoring \
+  -o jsonpath='{.data.admin-password}' \
+  | base64 --decode
+```
+
+To access Prometheus directly, find the Prometheus Service named something like `prometheus-stack-kube-prom-prometheus` and port forward it. Access it via http://localhost:9090
+```bash
+sudo kubectl get services -n monitoring | grep prometheus
+sudo kubectl port-forward \
+  -n monitoring \
+  service/prometheus-stack-kube-prom-prometheus  \
+  9090:9090
+```
+
+### 3.3. CI with GitHub Actions
+
+Similarly to the `build-and-publish.yaml` workflow that deploys to the container registry on changes to the application, it is good to have a CI workflow that validates those changes. In this case, I created a separate workflow that validates the infrastructure as code syntax, schemas and templates: `.github/workflows/ci.yaml`
+
+```yaml
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate YAML, Kubernetes and Helm
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Validate YAML syntax and style
+        run: yamllint .
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.37.1"
+
+      - name: Set up kubeconform
+        uses: bmuschko/setup-kubeconform@v1
+        with:
+          kubeconform-version: "0.8.0"
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "v3.16.4"
+
+      - name: Validate Helm charts
+        shell: bash
+        run: |
+          set -euo pipefail
+          helm lint ./helm/kanban \
+            -f ./helm/kanban/values/prod.yaml
+          helm template kanban ./helm/kanban \
+            -f ./helm/kanban/values/prod.yaml \
+            --namespace default \
+            > /tmp/kanban-rendered.yaml
+          kubeconform \
+            -summary \
+            -kubernetes-version 1.37.1 \
+            /tmp/kanban-rendered.yaml
+
+      - name: Validate Argo CD Application structure
+        run: |
+          find argocd -type f \( \
+            -name '*.yaml' -o -name '*.yml' \
+          \) -print0 |
+          xargs -0 -r kubeconform \
+            -summary \
+            -kubernetes-version 1.37.1 \
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{ .Group }}/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json'
+
+```
+
+This validates:
+- **yamllint**: YAML syntax, indentation and style.
+- **kubeconform**: Kubernetes resource schemas, using a target Kubernetes version.
+- **helm lint and helm template**: chart structure and whether templates render successfully.
+- **Argo CD Application**: Application YAML structure and CRD schema using a community CRD catalog.
+
+However, the YAML files under Helm `templates` contain the Go expression `{{ ... }}`, which is not valid YAML. Create a `.yamllint` configuration file to exclude them:
+```yaml
+extends: relaxed
+
+ignore: |
+  charts/**/templates/**
+  **/templates/**
+
+```
+I extended the "relaxed" configuration so that lines too long due to comments are considered warnings instead of errors.
+
+
+
+
+- - - 
+
+
 To reach this point:
 ```bash
-sudo kind delete cluster --name taskflow
+#sudo systemctl start docker
+#sudo kind delete cluster --name taskflow
 sudo kind create cluster --name taskflow
 sudo kubectl create namespace argocd
 sudo kubectl apply \
   -n argocd \
   --server-side --force-conflicts \
   -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-sudo kubectl apply -f argocd/prometheus-stack-application.yaml
+sudo kubectl apply \
+  -f argocd/taskflow-application.yaml
+sudo kubectl apply \
+  -f argocd/prometheus-stack-application.yaml
 
-```
-
----
-
-
->Each container acts as a Kubernetes node running kubelet, containerd, and the necessary control plane or worker components.
-
-
-```bash
-sudo kubectl cluster-info
-sudo kubectl get nodes
 ```
 
 ## **Part 4** -- Infrastructure as Code
@@ -543,6 +652,4 @@ sudo kubectl get nodes
 
 ## **Part 5** -- Public cloud deployment
 ---
-
------
 
