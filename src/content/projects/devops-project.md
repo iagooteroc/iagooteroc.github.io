@@ -1,13 +1,3 @@
-Sources:  
-https://docs.docker.com/reference/dockerfile/  
-https://helm.sh/docs  
-https://argo-cd.readthedocs.io/  
-https://github.com/argoproj/argo-cd/issues/26265#issuecomment-3850682322  
-...  
-https://learn.microsoft.com/en-us/azure/virtual-machines/windows/quick-create-terraform  
-https://learn.microsoft.com/en-us/azure/developer/terraform/
-
------
 
 ## Overview
 
@@ -17,11 +7,11 @@ In this project, I have documented all the necessary steps to build a basic DevO
 - Container orchestration
 - Continuous Integration and Continuous Delivery (CI/CD)
 - Monitoring and observability
-- Public cloud deployment
 
-## **Part 1** -- Git as the source of truth and container registry
 ---
-Following GitOps practices, we will use Git as the single source of truth for our declarative infrastructure in addition to its version control capabilities. On top of that, we will take advantage of GitHub's Container Registry as an easy way of making our containerized application available to the cloud.
+## **Part 1** -- Git as the source of truth and container registry
+
+Following GitOps practices, we will use **Git** as the single source of truth for our declarative infrastructure in addition to its version control capabilities. On top of that, we will take advantage of GitHub's Container Registry as an easy way of making our containerized application available to the cloud.
 
 ### 1.1. Git repository
 
@@ -53,7 +43,7 @@ sudo pacman -S docker
 sudo systemctl start docker
 ```
 
-Create an `index.html` file with an example site, like a Kanban board. You can copy it from my repository.  
+Create an `index.html` file with an example site, like a Kanban board. You can copy it from [my repository](https://github.com/iagooteroc/devops-project).  
 Add a `styles.css` file for some minimal styling and `app.js` with the javascript to make it work.
 
 Then, create the `Dockerfile` to contain the app:
@@ -165,8 +155,8 @@ jobs:
 
 This will build and publish our image whenever a push is made to the main branch affecting the `app/` folder. The image will be available at `ghcr.io/<user>/<repo>:<tag>`. It tags the image by SHA and also adds the `latest` tag.
 
-## **Part 2** -- Container orchestration
 ---
+## **Part 2** -- Container orchestration
 ### 2.1. Kubernetes
 
 **Kubernetes** (K8s) is an open-source container orchestration system to automate the deployment, scaling and management of containerized applications. There are a number of options to run it locally, but I used `kind` (Kubernetes in Docker). It is lightweight and runs Kubernetes cluster nodes as Docker containers instead of virtual machines. We'll also need the Kubernetes command-line tool, `kubectl`.
@@ -314,23 +304,26 @@ sudo kubectl port-forward \
   8080:80
 ```
 
-Keep that running and go to http://localhost:8080. You should see the kanban app.
+Keep that running and go to http://localhost:8080. You should see the kanban app.  
 
-\# TODO: helm commands (status, get, upgrade, history, rollback...)  
-You can view the values used by the release with:
+Here are some other useful helm commands:
 ```bash
-# Get values
+# Get values used by the release
 sudo helm get values taskflow \
   --namespace taskflow
 # Get all values, including defaults
 sudo helm get values taskflow --all \
   --namespace taskflow
+# Show release status
+sudo helm status taskflow
+# Show revision history
+sudo helm history taskflow
 ```
 
-If you want to change a value, you would have to edit the chart and re-install it. Instead of doing that manually, we will use **Argo CD**.
+If you wanted to change a value, you would have to edit the chart and upgrade the release. Instead of doing that manually, we will use **Argo CD**.
 
-## **Part 3** -- CI/CD, monitoring and observability
 ---
+## **Part 3** -- CI/CD, monitoring and observability
 ### 3.1. Argo CD
 
 **Argo CD** is a declarative, GitOps continuous delivery tool for Kubernetes. It considers the state declared in Git to be the desired state of the application and will sync the Kubernetes cluster to match it.  
@@ -396,7 +389,7 @@ sudo argocd login localhost:8081
 sudo argocd account update-password
 ```
 
-Now you need to have your **Helm** charts accesible in your repository, so commit them if you haven't already:
+Now you need to have your Helm charts accesible in your repository, so commit them if you haven't already:
 ```bash
 git add .
 git commit -m "feat: helm chart for kanban app"
@@ -450,7 +443,7 @@ sudo argocd app list
 sudo argocd app get taskflow
 ```
 
-
+If something goes wrong, you can check the logs of the previous execution of troublesome pods like this:
 ```bash
 sudo kubectl logs -n argocd \
   argocd-applicationset-controller-86bcdc46cf-vwmn7 \
@@ -458,15 +451,13 @@ sudo kubectl logs -n argocd \
   --previous
 ```
 
-\# TODO: app-of-apps pattern:
-https://www.arthurkoziel.com/setting-up-argocd-with-helm/
-
+To monitor the status and health of the deployment, **Prometheus** is often deployed alongside the application.
 
 ### 3.2. Prometheus and Grafana
 
 **Prometheus** is an open source application for monitoring, obtaining metrics and alerts that integrates with Kubernetes. It is often paired with **Grafana** for observability.
 
-I used Argo CD to install the `kube-prometheus-stack` Helm chart with this `argocd/prometheus-stack-application.yaml`:
+I used **Argo CD** to install the `kube-prometheus-stack` Helm chart with this `argocd/prometheus-stack-application.yaml`:
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -501,7 +492,7 @@ sudo kubectl apply \
   -f argocd/prometheus-stack-application.yaml
 ```
 
-When its ready, find the Grafana Service and port forward it:
+When its ready, find the **Grafana** service and port forward it:
 ```bash
 sudo kubectl get services -n monitoring
 sudo kubectl port-forward \
@@ -510,7 +501,7 @@ sudo kubectl port-forward \
   3000:80
 ```
 
-Get the initial Grafana password and use it to log in the web UI at http://localhost:3000
+Get the initial **Grafana** password and use it to log in the web UI at http://localhost:3000.
 ```bash
 sudo kubectl get secret prometheus-stack-grafana \
   -n monitoring \
@@ -518,7 +509,7 @@ sudo kubectl get secret prometheus-stack-grafana \
   | base64 --decode
 ```
 
-To access Prometheus directly, find the Prometheus Service named something like `prometheus-stack-kube-prom-prometheus` and port forward it. Access it via http://localhost:9090
+To access **Prometheus** directly, find the **Prometheus** service named something like `prometheus-stack-kube-prom-prometheus` and port forward it. Access it via http://localhost:9090.
 ```bash
 sudo kubectl get services -n monitoring | grep prometheus
 sudo kubectl port-forward \
@@ -526,6 +517,8 @@ sudo kubectl port-forward \
   service/prometheus-stack-kube-prom-prometheus  \
   9090:9090
 ```
+
+If we wanted to keep working on this project, it is recommended to set up a continuous integration (CI) workflow in order to automatically validate new changes. Let's set it up with **GitHub Actions**.
 
 ### 3.3. CI with GitHub Actions
 
@@ -621,35 +614,48 @@ ignore: |
 ```
 I extended the "relaxed" configuration so that lines too long due to comments are considered warnings instead of errors.
 
+---
+## Lessons learned
 
-
-
-- - - 
-
-
-To reach this point:
+We now have a deployment stack that can be brought up from scratch with these commands:
 ```bash
-#sudo systemctl start docker
-#sudo kind delete cluster --name taskflow
+# Start the docker service
+sudo systemctl start docker
+# Create the cluster
 sudo kind create cluster --name taskflow
+# Create a namespace for Argo CD
 sudo kubectl create namespace argocd
+# Install Argo CD
 sudo kubectl apply \
   -n argocd \
   --server-side --force-conflicts \
   -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# Install your application
 sudo kubectl apply \
   -f argocd/taskflow-application.yaml
+# Install the Prometheus stack
 sudo kubectl apply \
   -f argocd/prometheus-stack-application.yaml
 
 ```
 
-## **Part 4** -- Infrastructure as Code
----
-### 4.1. Terraform/OpenTofu
+And to bring it down we can simply delete the cluster:
+```bash
+sudo kind delete cluster --name taskflow
+```
 
-### 4.2. Ansible
+New changes pushed to the repo will be automatically validated by **GitHub Actions** and published to the Container Registry. **Argo CD** will detect those changes and sync the cluster to the new version. The infrastructure is declared through the source code itself so we can be recreated without manual intervention.
 
-## **Part 5** -- Public cloud deployment
----
+#### Future work
 
+- Deploy the app in a public cloud using **Terraform**/**OpenTofu**.
+
+- Implement the [app-of-apps](https://argoproj.github.io/argo-cd/operator-manual/declarative-setup/#app-of-apps) pattern with **Argo CD** to deploys everything in a single `kubectl apply`.
+
+- Replace **GitHub** with a self-hosted alternative, like **GitLab** or **Gitea**, and the container registry with **Harbor**.
+
+#### Sources
+- https://docs.docker.com/reference/dockerfile/  
+- https://helm.sh/docs  
+- https://argo-cd.readthedocs.io/  
+- https://github.com/argoproj/argo-cd/issues/26265#issuecomment-3850682322  

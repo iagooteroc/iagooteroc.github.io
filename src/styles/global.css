@@ -150,6 +150,10 @@ a:active {
   cursor: pointer;
 }
 
+.toc summary:hover {
+  color: var(--text);
+}
+
 .toc ul {
   margin-bottom: 0;
   padding-left: var(--margin-l);
@@ -288,4 +292,8 @@ blockquote p + p {
 
 .site-nav ul li a:hover {
 	color: var(--text);
+}
+
+li {
+	line-height: 1.5rem !important;
 }
