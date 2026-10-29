@@ -106,7 +106,7 @@ a:active {
 	color: var(--accent);
 }
 
-.content, .site-header {
+.content, .site-header, .site-footer {
 /* 	width: min(
 		var(--content-max),
 		calc(100% - 2 * var(--content-gutter))
@@ -118,7 +118,7 @@ a:active {
 		calc(100vh * 16 / 9));
 	margin-inline: auto;
 	padding-top: var(--margin-xl);
-	padding-bottom: var(--margin-xl);
+	padding-bottom: 4rem;/* var(--margin-xxl);*/
 }
 
 * {
@@ -296,4 +296,39 @@ blockquote p + p {
 
 li {
 	line-height: 1.5rem !important;
+}
+
+.site-footer {
+	border-top: 1px solid var(--bg-light);
+	padding-top: 1.5rem;
+	padding-bottom: 2rem;
+	margin-top: 2rem;
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+	font: var(--small);
+	color: var(--text-muted);
+}
+
+.site-footer .social {
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.site-footer .meta {
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.site-footer div a {
+	color: var(--text-muted);
+	text-decoration: none;
+}
+
+.site-footer div a:hover {
+	color: var(--accent);
+	text-decoration: underline
 }

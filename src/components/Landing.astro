@@ -5,12 +5,12 @@ import ProjectCard from "../components/ProjectCard.astro"
 
 <Layout>
 	<section class="greeting">
-		<h1>Hello, I'm <span class="accented-word">Iago</span></h1>
-		<p>I'm a DevOps enthusiast</p>
+		<h1 id="about">Hello, I'm <span class="accented-word">Iago</span></h1>
+		<p>I'm a computer scientist interested in <b>DevOps</b> practices.</p>
 	</section>
 	
 	<section class="projects">
-		<h2>Projects</h2>
+		<h2 id="projects">Projects</h2>
 
 		<div class="project-grid">
 			<ProjectCard
@@ -27,11 +27,26 @@ import ProjectCard from "../components/ProjectCard.astro"
 			/>
 			<ProjectCard
 				title="DevOps Project"
-				description="Practise project with everything needed from CI/CD to monitoring"
+				description="Practical learning project with everything needed from CI/CD to monitoring"
 				href="/projects/devops-project/"
 				technologies={["Git", "Kubernetes", "Helm", "Argo CD", "Prometheus", "Graphana",]}
 			/>
+			<ProjectCard
+				title="Arch Bootstrap"
+				description="Ansible Playbooks to set up all my Arch devices to my liking"
+				href="/projects/devops-project/"
+				technologies={["Git", "Ansible"]}
+			/>
 		</div>
+	</section>
+	
+	<section class="contact">
+		<h2 id="contact">Contact</h2>
+			<ul>
+				<li>
+					Email: <a href="mailto:i.otero.coto@gmail.com">i.otero.coto@gmail.com</a>
+				</li>
+			</ul>
 	</section>
 </Layout>
 
