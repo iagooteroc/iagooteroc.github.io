@@ -14,7 +14,8 @@
 	--bg-dark: hsl(218, 33%, 12%);
 	--bg-light: hsl(217, 27%, 31%);
 	--text: hsl(157, 48%, 90%);
-	--text-muted: hsl(174, 11%, 80%);
+	--text-half-muted: hsl(174, 11%, 80%);
+	--text-muted: hsl(174, 11%, 70%);
 	--accent: hsl(358, 85%, 62%);
 
 	/* landing page */
@@ -204,7 +205,7 @@ pre.astro-code {
 	background-color: var(--bg-dark);
 	padding: 0.1em 0.4em;
 	border-radius: 4px;
-	color: var(--text-muted);
+	color: var(--text-half-muted);
 	font-size: 0.88rem;
 	/* border: 1px solid var(--bg-light); */
 }
@@ -235,6 +236,9 @@ blockquote p + p {
 	padding-top: 1.75rem;
 	padding-bottom: 1.25rem;
 	flex-wrap: wrap;
+	justify-content: space-between;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .brand {
@@ -242,6 +246,8 @@ blockquote p + p {
 	text-decoration: none !important;
 	font: var(--h4);
 	color: var(--text) !important;
+	display: inline-flex;
+	/* white-space: nowrap; */
 }
 
 .brand-caret {
@@ -257,4 +263,29 @@ blockquote p + p {
 
 @keyframes blink{
 	0%,100%{opacity:1}50%{opacity:0.1}
+}
+
+.site-nav {
+	display: flex;
+	align-items: center;
+	gap: 1.1rem;
+	flex-wrap: wrap;
+}
+
+.site-nav ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.site-nav ul li a {
+	color: var(--text-muted);
+	text-decoration: none;
+}
+
+.site-nav ul li a:hover {
+	color: var(--text);
 }
