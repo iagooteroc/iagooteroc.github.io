@@ -7,5 +7,6 @@ export default defineConfig({
         shikiConfig: {
             theme: 'dracula',
         }
-    }
+    },
+    site: 'https://iagooteroc.github.io',
 });
