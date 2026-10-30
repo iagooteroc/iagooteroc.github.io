@@ -77,7 +77,7 @@ export default defineConfig({
 })
 ```
 
-However, you can skip this is your repository name matches the special `<username>.github.io` pattern (e.g. `https://github.com/<username>/<username>.github.io/`), which is what I did.That way I don't have to prefix all my internal page links with the `base` (e.g. `<a href="/<reponame>/about">About</a>`)
+However, you can skip this is your repository name matches the special `<username>.github.io` pattern (e.g. `https://github.com/<username>/<username>.github.io/`), which is what I did. That way I don't have to prefix all my internal page links with the `base` (e.g. `<a href="/<reponame>/about">About</a>`)
 
 ---
 ## **Step 4** -- GitHub Pages

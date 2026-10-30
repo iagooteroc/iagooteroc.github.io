@@ -199,7 +199,7 @@ pre.astro-code {
 }
 
 .astro-code span {
-	font-family: 'Courier New', Courier, monospace !important;
+	font-family: monospace !important;
 	font-size: 0.88rem !important;
 }
 /* https://docs.astro.build/en/guides/syntax-highlighting/ */
@@ -211,6 +211,7 @@ pre.astro-code {
 	border-radius: 4px;
 	color: var(--text-half-muted);
 	font-size: 0.88rem;
+	overflow-wrap: break-word;
 	/* border: 1px solid var(--bg-light); */
 }
 
