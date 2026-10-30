@@ -78,6 +78,10 @@ p { font: var(--p); margin-bottom: 1.1rem; }
 	--text-muted: hsl(0, 0%, 30%);
 } */
 
+a {
+  overflow-wrap: break-word;
+}
+
 /* unvisited link */
 a:link {
   color: var(--accent);
