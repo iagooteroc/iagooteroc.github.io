@@ -89,6 +89,10 @@ On your repository's **Settings** tab, go to the **Pages** section and choose **
 
 On new pushes to your repository, the configured GitHub Action will now deploy the new version to your GitHub Page.
 
+#### Future work
+
+- Change the name of the tab to the page you are reading.
+
 #### Sources
 
 - https://docs.astro.build/en/guides/deploy/github/
